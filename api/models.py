@@ -43,14 +43,14 @@ class User(AbstractBaseUser,PermissionsMixin):
 def upload_profile_image_path(instance, filename):
     #jpg png などの拡張子の部分を取得する
     ext = filename.split('.')[-1]
-    return '/'.join(['images/profiles', str(instance.user.id)+str(uuid.uuid4)+str(".")+str(ext)])
+    return '/'.join(['images/profiles', str(instance.user.id)+uuid.uuid4+str(".")+str(ext)])
 
 def upload_post_path(instance, filename):
     ext = filename.split('.')[-1]
-    return '/'.join(['images/posts', str(instance.userPost.id)+str(uuid.uuid4)+str(".")+str(ext)])
+    return '/'.join(['images/posts', str(instance.userPost.id)+uuid.uuid4+str(".")+str(ext)])
 
 class Profile(models.Model):
-  nickname = models.CharField(max_length=20)
+  nickName = models.CharField(max_length=20,default="No Name")
   user = models.OneToOneField(settings.AUTH_USER_MODEL,related_name="user",on_delete=models.CASCADE)
   createdAt = models.DateTimeField(auto_now_add=True) 
   image = models.ImageField(blank=True, null=True, upload_to=upload_profile_image_path)
@@ -59,20 +59,16 @@ class Profile(models.Model):
 
 
 
-
-  def __str__(self) -> str:
-       return self.text
-
 class Choice(models.Model):
     text = models.CharField(max_length=200)
     #誰がこの選択肢に投票したのか
-    votedUserCount = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True,null=True )
+    votedUserCount = models.ManyToManyField(Profile, blank=True)
 
     def __str__(self) -> str:
        return self.text
 
 class Vote(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
     questionText = models.CharField(max_length=200)
     createdAt = models.DateTimeField(auto_now_add=True) 
     image = models.ImageField(blank=True, null=True, upload_to=upload_profile_image_path)
@@ -84,7 +80,7 @@ class Vote(models.Model):
   
 
 class Thread(models.Model):
-  user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+  user = models.ForeignKey(Profile, on_delete=models.CASCADE)
   vote = models.ManyToManyField(Vote, blank=True )
   title = models.CharField(max_length=100)
   createdAt = models.DateTimeField(auto_now_add=True) 
@@ -93,7 +89,7 @@ class Thread(models.Model):
 
 
 class ThreadComment(models.Model):
-  user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+  user = models.ForeignKey(Profile, on_delete=models.CASCADE)
   thread = models.ForeignKey(Thread, on_delete=models.CASCADE)
   text = models.CharField(max_length=100)
   createdAt = models.DateTimeField(auto_now_add=True) 
@@ -105,7 +101,7 @@ class ThreadComment(models.Model):
 
 
 class VoteComment(models.Model):
-  user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+  user = models.ForeignKey(Profile, on_delete=models.CASCADE)
   vote = models.ForeignKey(Vote, on_delete=models.CASCADE)
   text = models.CharField(max_length=100)
   createdAt = models.DateTimeField(auto_now_add=True) 
