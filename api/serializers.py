@@ -1,12 +1,13 @@
-
-from random import choices
-from secrets import choice
+from urllib.request import Request
+from django.http import HttpResponse
+from rest_framework.decorators import action
 from rest_framework import serializers
 from .models import User,Vote,VoteComment,Thread,ThreadComment,Choice,Profile
 from django.contrib.auth import get_user_model
 
-class UserSerializer(serializers.ModelSerializer):
 
+
+class UserSerializer(serializers.ModelSerializer):
   class Meta:
     model = User
     fields = ["id", "email"]
@@ -41,12 +42,18 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 
+
+
+
+
+
+
+ 
 class ChoiceSerializer(serializers.ModelSerializer):
   votedUserCount = ProfileSerializer(read_only=True,many=True)
-  id = serializers.IntegerField(read_only=True)
+  id = serializers.UUIDField(read_only=True)
   text = serializers.CharField(max_length=200)
-  print("ChoiceSerializerが呼ばれました")
-
+ 
   class Meta:
     model = Choice
     fields = ["id","text","votedUserCount","votes"]
@@ -55,29 +62,26 @@ class ChoiceSerializer(serializers.ModelSerializer):
   def create(self, validated_data):
       return Choice.objects.create(**validated_data)
 
-class ChoiceSerializerWithVotes(ChoiceSerializer):
-    votes = serializers.IntegerField(read_only=True)
-
-
 class VoteSerializer(serializers.ModelSerializer):
-  createdAt = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)
+  createdAt = serializers.DateTimeField(format="%Y-%m-%d")
   user = ProfileSerializer(read_only=True)
-  
+  choices = ChoiceSerializer(read_only=True)
   class Meta:
     model = Vote
     fields = ["id","user","questionText","createdAt","image","isOnlyLoginUser","choices"]
-  
+
   def create(self, validated_data):
-      return Vote.objects.create(**validated_data)
-  
- 
+    return Vote.objects.create(**validated_data)
+
+class ChoiceSerializerWithVotes(ChoiceSerializer):
+    votes = serializers.UUIDField(read_only=True)
 
 class QuestionDetailPageSerializer(VoteSerializer):
   choices = ChoiceSerializer(many=True, read_only=True)
   
-
 class QuestionResultPageSerializer(VoteSerializer):
   choices = ChoiceSerializerWithVotes(many=True, read_only=True)
+
   
 
 

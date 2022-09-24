@@ -43,11 +43,11 @@ class User(AbstractBaseUser,PermissionsMixin):
 def upload_profile_image_path(instance, filename):
     #jpg png などの拡張子の部分を取得する
     ext = filename.split('.')[-1]
-    return '/'.join(['images/profiles', str(instance.user.id)+uuid.uuid4+str(".")+str(ext)])
+    return '/'.join(['images/profiles',str(instance.user.id)+str(uuid.uuid4)+str(".")+str(ext)])
 
 def upload_post_path(instance, filename):
     ext = filename.split('.')[-1]
-    return '/'.join(['images/posts', str(instance.userPost.id)+uuid.uuid4+str(".")+str(ext)])
+    return '/'.join(['images/posts', str(instance.userPost.id)+str(uuid.uuid4)+str(".")+str(ext)])
 
 class Profile(models.Model):
   nickName = models.CharField(max_length=20,default="No Name")
@@ -58,6 +58,7 @@ class Profile(models.Model):
       return self.nickName
 
 class Vote(models.Model):
+    id = models.UUIDField(primary_key=True,default=uuid.uuid4, editable=False)
     user = models.ForeignKey(Profile, on_delete=models.CASCADE)
     questionText = models.CharField(max_length=200)
     createdAt = models.DateTimeField(auto_now_add=True) 
@@ -69,10 +70,11 @@ class Vote(models.Model):
        return self.questionText
 
 class Choice(models.Model):
+    id = models.UUIDField(primary_key=True,default=uuid.uuid4, editable=False)
     text = models.CharField(max_length=200)
     #誰がこの選択肢に投票したのか
     votedUserCount = models.ManyToManyField(Profile, blank=True)
-    vote = models.ForeignKey(Vote,blank=True,on_delete=models.CASCADE,related_name="choices"  ) 
+    vote = models.ForeignKey(Vote,blank=True,on_delete=models.CASCADE,related_name="choices") 
     def __str__(self) -> str:
        return self.text
 
