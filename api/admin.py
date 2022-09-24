@@ -32,7 +32,17 @@ admin.site.register(User, UserAdmin)
 admin.site.register(Profile)
 admin.site.register(Thread)
 admin.site.register(ThreadComment)
-admin.site.register(Vote)
+
+
+class ChoiceInline(admin.StackedInline):
+    model = Choice
+    extra = 4
+ 
+ 
+class QuestionAdmin(admin.ModelAdmin):
+    inlines = [ChoiceInline]
+    list_display = ('questionText', 'createdAt')
+admin.site.register(Vote,QuestionAdmin)
 admin.site.register(VoteComment)
 admin.site.register(Choice)
 

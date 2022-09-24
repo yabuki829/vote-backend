@@ -57,16 +57,6 @@ class Profile(models.Model):
   def __str__(self):
       return self.nickName
 
-
-
-class Choice(models.Model):
-    text = models.CharField(max_length=200)
-    #誰がこの選択肢に投票したのか
-    votedUserCount = models.ManyToManyField(Profile, blank=True)
-
-    def __str__(self) -> str:
-       return self.text
-
 class Vote(models.Model):
     user = models.ForeignKey(Profile, on_delete=models.CASCADE)
     questionText = models.CharField(max_length=200)
@@ -74,9 +64,19 @@ class Vote(models.Model):
     image = models.ImageField(blank=True, null=True, upload_to=upload_profile_image_path)
     #ログインしているアカウントのみ投票できる
     isOnlyLoginUser = models.BooleanField(default=False)
-    choices = models.ManyToManyField(Choice,blank=True) 
+    
     def __str__(self) -> str:
        return self.questionText
+
+class Choice(models.Model):
+    text = models.CharField(max_length=200)
+    #誰がこの選択肢に投票したのか
+    votedUserCount = models.ManyToManyField(Profile, blank=True)
+    vote = models.ForeignKey(Vote,blank=True,on_delete=models.CASCADE,related_name="choices"  ) 
+    def __str__(self) -> str:
+       return self.text
+
+
   
 
 class Thread(models.Model):

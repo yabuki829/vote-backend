@@ -7,6 +7,7 @@ router = DefaultRouter()
 router.register('vote', VoteViewSet)
 router.register('profile',ProfileViewSets)
 router.register('choice',ChoiceViewSets)
+
 urlpatterns = [
   path('',include(router.urls)),
   path('register/', CreateUserView.as_view(), name='register'),
