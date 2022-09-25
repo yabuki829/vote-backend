@@ -18,6 +18,9 @@ class CreateUserView(generics.CreateAPIView):
   serializer_class = UserSerializer
   permission_classes = [AllowAny,]
 
+  def perform_create(self, serializer):
+    return super().perform_create(serializer)
+
 class ProfileViewSets(viewsets.ModelViewSet):
   queryset = Profile.objects.all()
   serializer_class = ProfileSerializer
@@ -26,79 +29,40 @@ class ProfileViewSets(viewsets.ModelViewSet):
     serializer.save(user=self.request.user)
 
 
-class ChoiceViewSets(viewsets.ModelViewSet):
-  print("ChoiceViewSetsが呼ばれました")
-  queryset = Choice.objects.all()
-  serializer_class = ChoiceSerializerWithVotes
-
-
-  def perform_create(self,serializer,id):
-    print("---------------------------------")
-    print("perform_create作成されました。")
-    print("serializer1",serializer)
-    serializer.save(vote=id)
-
-
-class VoteViewSet(viewsets.ModelViewSet):
-  print("VoteViewSetが呼ばれました")
-  queryset = Vote.objects.all()
-  serializer_class = QuestionResultPageSerializer
-
-  def create(self, request, *args, **kwargs):
-   
-    serializer = self.get_serializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-
-    choices = request.data["choices"]
-    self.perform_create(serializer,choices)
-    #---------------------------------
-    # TODO 返却値にChicesのデータを含ませたい
-
-    #選択肢を作成するコード
-    #serializeにもこれをどうにか反映させたい
-    #perform_createをこのコードより上で実装しているから
-    #headers = self.get_success_headers(serializer.data)　
-    ##　で返却するserializer.dataにはchice空になる
-
-    vote_id = serializer.data["id"]
-    vote_instance = Vote.objects.get(id=vote_id) 
-   
-    for choice in choices:
-      choice_data = {"text":choice["text"],"vote":vote_instance}
-      Choice.objects.create(**choice_data)
-      
-    # choice_dic = Choice.objects.filter(vote=vote_instance)
-    # print("-------------------------")
-    # print("choice_dic")
-    # print(choice_dic)
-    # print("-------------------------")
-    # print("is_validする")
-   
-    #---------------------------------
-    
-    
-    headers = self.get_success_headers(serializer.data)
-
-    
-    return  Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-  
-  def perform_create(self,serializer,choices):
-   
-    profile = Profile.objects.get(user=self.request.user)
-    vote_id = str(uuid.uuid4())
-    
-    # vote_instance =Vote.objects.create(id=vote_id,user=profile)
-    # print("--------------")
-    # print("これ",choices)
-    # for choice in choices :
-    #   Choice.objects.create(**choice,vote=vote_instance)
-      
-    serializer.save(user=profile,id=vote_id)
-    #　ここでChoiceを登録したい
-
-    
-  
   
 
+class VoteAPIView(views.APIView):
+  
+
+  def get(self,request):
+    vote = Vote.objects.filter()
+    serializer = QuestionResultPageSerializer(vote, many=True)
+  
+    return Response(serializer.data,status=status.HTTP_201_CREATED)
+  
+  def post(self,request):
+    request_data = request.data
+    print(request_data)
+    serializer = QuestionDetailPageSerializer(data=request_data)
+    
+    choices = request_data["choices"]
+    if serializer.is_valid():
+      profile = Profile.objects.get(user=self.request.user) 
+      vote_id = str(uuid.uuid4())
+      serializer.save(user=profile,id=vote_id)
+      print(1111111111111111111)
+      vote_instance = Vote.objects.get(id=vote_id) 
+
+      for choice in choices:
+        choice_data = {"text":choice["text"],"vote":vote_instance}
+        print(choice_data)
+        Choice.objects.create(**choice_data)
+        
+      return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    return Response({"message":"Postがきちんと呼ばれてます"})
+  def create_choices(choices):
+    
+      return choices
 
   

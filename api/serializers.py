@@ -34,20 +34,6 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
  
 class ChoiceSerializer(serializers.ModelSerializer):
   votedUserCount = ProfileSerializer(read_only=True,many=True)
@@ -56,7 +42,7 @@ class ChoiceSerializer(serializers.ModelSerializer):
 
   class Meta:
     model = Choice
-    fields = ["id","text","votedUserCount","votes"]
+    fields = ["id","text","votedUserCount","vote"]
     extra_kwargs = {'user': {'read_only': True}}
   
   def create(self, validated_data):
@@ -66,25 +52,16 @@ class ChoiceSerializer(serializers.ModelSerializer):
 class VoteSerializer(serializers.ModelSerializer):
   createdAt = serializers.DateTimeField(format="%Y-%m-%d")
   user = ProfileSerializer(read_only=True)
-  choices = ChoiceSerializer(read_only=True)
+  choices = ChoiceSerializer()
+  
   class Meta:
     model = Vote
     fields = ["id","user","questionText","createdAt","image","isOnlyLoginUser","choices"]
 
-  def create(self, validated_data):
-    #ここでChoiceを作成してvoteに入れる
-    # print("----------------------")
-    # print("Voteを作成します")
-
-    # choice_data = validated_data.pop("id")
-    # print("data",choice_data)
-    # print(validated_data)
-    # print("----------------------")
-    # vote = Vote.objects.create(**validated_data)
-    
-    return Vote.objects.create(**validated_data)
-
   
+
+  def create(self, validated_data):
+    return Vote.objects.create(**validated_data)
     
 class ChoiceSerializerWithVotes(ChoiceSerializer):
     votes = serializers.UUIDField(read_only=True)
