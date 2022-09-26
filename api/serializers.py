@@ -26,14 +26,6 @@ class ProfileSerializer(serializers.ModelSerializer):
     fields = ["id","nickName","user","createdAt","image"]
     extra_kwargs = {'user': {'read_only': True}}
 
-
-
-
-
-
-
-
-
  
 class ChoiceSerializer(serializers.ModelSerializer):
   votedUserCount = ProfileSerializer(read_only=True,many=True)
@@ -42,7 +34,7 @@ class ChoiceSerializer(serializers.ModelSerializer):
 
   class Meta:
     model = Choice
-    fields = ["id","text","votedUserCount","vote"]
+    fields = ["id","text","votedUserCount"]
     extra_kwargs = {'user': {'read_only': True}}
   
   def create(self, validated_data):
@@ -75,7 +67,7 @@ class QuestionResultPageSerializer(VoteSerializer):
   
 
 
-
+#TODO スレッド　コメントのシリアライザーを作成する
 
 #     class ThreadSerializer(serializers.ModelSerializer):
 #   createdAt = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)

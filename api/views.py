@@ -30,9 +30,8 @@ class VoteAPIView(views.APIView):
 
   def get(self,request):
     #TODO クエリをつけたい
-
-    vote = Vote.objects.filter()
-    serializer = QuestionResultPageSerializer(vote, many=True)
+    vote = Vote.objects.all()
+    serializer = QuestionDetailPageSerializer(vote, many=True)
     return Response(serializer.data,status=status.HTTP_201_CREATED)
   
   def post(self,request):
