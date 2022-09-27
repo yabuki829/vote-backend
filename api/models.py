@@ -30,6 +30,7 @@ class UserManager(BaseUserManager):
     return user
 
 class User(AbstractBaseUser,PermissionsMixin):
+  # id = models.UUIDField(primary_key=True,default=uuid.uuid4, editable=False)
   email = models.EmailField(max_length=100,unique=True)
   is_active =  models.BooleanField(default=True)
   is_staff = models.BooleanField(default=False)
@@ -50,6 +51,7 @@ def upload_post_path(instance, filename):
     return '/'.join(['images/posts', str(instance.userPost.id)+str(uuid.uuid4)+str(".")+str(ext)])
 
 class Profile(models.Model):
+  # id = models.UUIDField(primary_key=True,default=uuid.uuid4, editable=False)
   nickName = models.CharField(max_length=20,default="No Name")
   user = models.OneToOneField(settings.AUTH_USER_MODEL,related_name="user",on_delete=models.CASCADE)
   createdAt = models.DateTimeField(auto_now_add=True) 
@@ -65,7 +67,7 @@ class Vote(models.Model):
     image = models.ImageField(blank=True, null=True, upload_to=upload_profile_image_path)
     #ログインしているアカウントのみ投票できる
     isOnlyLoginUser = models.BooleanField(default=False)
-    
+    numberOfVotes = models.ManyToManyField(User, blank=True)
     def __str__(self) -> str:
        return self.questionText
 

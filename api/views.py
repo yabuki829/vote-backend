@@ -2,7 +2,7 @@
 import uuid
 from rest_framework import generics
 from rest_framework import viewsets,views,status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny,IsAuthenticated
 from .serializers import ProfileSerializer, QuestionDetailPageSerializer,UserSerializer,QuestionResultPageSerializer
 from .models import User,Vote,VoteComment,Thread,ThreadComment,Choice,Profile
 from rest_framework.response import Response 
@@ -27,9 +27,9 @@ class ProfileViewSets(viewsets.ModelViewSet):
 
 class VoteAPIView(views.APIView):
   
-
   def get(self,request):
     #TODO クエリをつけたい
+
     vote = Vote.objects.all()
     serializer = QuestionDetailPageSerializer(vote, many=True)
     return Response(serializer.data,status=status.HTTP_201_CREATED)
@@ -53,6 +53,47 @@ class VoteAPIView(views.APIView):
       return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     return Response({"message":"エラー"})
-
-
   
+ 
+    
+
+class VoteDetailAPIView(views.APIView):
+
+
+    
+  def get(self,request,pk):
+   
+
+    vote = Vote.objects.filter(pk=pk)
+    serializer = QuestionDetailPageSerializer(vote, many=True)
+    return Response(serializer.data,status=status.HTTP_201_CREATED)
+    pass
+  def put(self, request, pk):
+   
+    # userを取得する
+    # voteのcountにuserを追加する
+    # choicesのvoteduserにuserを追加する
+    # dataで受け取るのは choiceのid
+    print("------------------------")
+    print(request.data["choice"])
+    print(request.user)
+    print("------------------------")
+    # vote = Vote.objects.get(pk=pk)
+    # print("投票数",vote.numberOfVotes)
+    # user = User.objects.get(pk=request.user)
+    # print("ユーザー",user)
+
+    # vote.numberOfVotes.add(user)
+    # serializer = QuestionDetailPageSerializer(vote, data=request.data)
+    # if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data)
+
+    return Response({"message":"Putしました"}, status=status.HTTP_400_BAD_REQUEST)
+    
+  
+
+  def delete(self, request, pk):
+    vote = self.get_object(pk)
+    vote.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
