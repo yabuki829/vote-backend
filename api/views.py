@@ -69,11 +69,14 @@ class VoteDetailAPIView(views.APIView):
     return Response(serializer.data,status=status.HTTP_201_CREATED)
     pass
   def put(self, request, pk):
+    # 匿名投票をいつか実装したい
    
-    # userを取得する
+    # requestからuserを取得する
+    # pkからvoteを取得する
     # voteのcountにuserを追加する
     # choicesのvoteduserにuserを追加する
     # dataで受け取るのは choiceのid
+    #choiceidを受け取り　filterをかけてvoteduserにUserを追加する
     print("------------------------")
     print(request.data["choice"])
     print(request.user)

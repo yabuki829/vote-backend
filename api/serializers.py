@@ -10,13 +10,14 @@ from django.contrib.auth import get_user_model
 class UserSerializer(serializers.ModelSerializer):
   class Meta:
     model = User
-    fields = ["id", "email"]
+    fields = ["id", "email","password"]
     extra_kwargs= {'password': {'write_only': True},'email': {'write_only': True}}
 
   def create(self ,validated_data):
-      user = get_user_model().objects.create_user(**validated_data)
+
+    user = get_user_model().objects.create_user(**validated_data)
               # User.objects.create_user(request_data=validated_data)
-      return user 
+    return user 
 
 class ProfileSerializer(serializers.ModelSerializer):
   createdAt = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)
