@@ -1,4 +1,7 @@
 
+from asyncio import constants
+from datetime import datetime
+import re
 import uuid
 from rest_framework import generics
 from rest_framework import viewsets,views,status
@@ -34,14 +37,21 @@ class VoteAPIView(views.APIView):
     serializer = QuestionDetailPageSerializer(vote, many=True)
     return Response(serializer.data,status=status.HTTP_201_CREATED)
   
-  def post(self,request):
+  def post(self,request): 
     request_data = request.data
+    print("1回目",request_data)
+    now = datetime.now()
+    date = '{:%Y-%m-%d}'.format(now) 
+    request_data.update({"createdAt": date})
     serializer = QuestionDetailPageSerializer(data=request_data)
-    
+    print("------------------------------")
+    print("2回目",request_data)
     if serializer.is_valid():
+      print("validted")
       profile = Profile.objects.get(user=self.request.user) 
       vote_id = str(uuid.uuid4())
-      serializer.save(user=profile,id=vote_id)
+
+      serializer.save(user=profile,id=vote_id,)
       
       vote_instance = Vote.objects.get(id=vote_id) 
       choices = request_data["choices"]
@@ -51,11 +61,12 @@ class VoteAPIView(views.APIView):
         Choice.objects.create(**choice_data)
         
       return Response(serializer.data, status=status.HTTP_201_CREATED)
-
+    else:
+      print("エラー")
+      print(serializer.errors)
     return Response({"message":"エラー"})
   
  
-    
 
 class VoteDetailAPIView(views.APIView):
 
