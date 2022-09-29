@@ -16,6 +16,7 @@ class CreateUserView(generics.CreateAPIView):
   permission_classes = [AllowAny,]
 
   def perform_create(self, serializer):
+    print("ユーザーを作成します")
     return super().perform_create(serializer)
 
 class ProfileViewSets(viewsets.ModelViewSet):
