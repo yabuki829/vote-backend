@@ -24,7 +24,12 @@ class ProfileViewSets(viewsets.ModelViewSet):
   serializer_class = ProfileSerializer
 
   def perform_create(self, serializer):
-    serializer.save(user=self.request.user)
+    if Profile.objects.filter(user=self.request.user).exists() == False:
+      print("作成しました")
+      serializer.save(user=self.request.user)
+    else:
+      print("作成しませんでした")
+    
 
 
   
