@@ -1,7 +1,5 @@
 
-from asyncio import constants
 from datetime import datetime
-import re
 import uuid
 from rest_framework import generics
 from rest_framework import viewsets,views,status
@@ -27,8 +25,6 @@ class ProfileViewSets(viewsets.ModelViewSet):
     if Profile.objects.filter(user=self.request.user).exists() == False:
       print("作成しました")
       serializer.save(user=self.request.user)
-    else:
-      print("作成しませんでした")
     
 
 
@@ -75,8 +71,6 @@ class VoteAPIView(views.APIView):
  
 
 class VoteDetailAPIView(views.APIView):
-
-
     
   def get(self,request,pk):
    
@@ -86,31 +80,24 @@ class VoteDetailAPIView(views.APIView):
     return Response(serializer.data,status=status.HTTP_201_CREATED)
     pass
   def put(self, request, pk):
-    # 匿名投票をいつか実装したい
    
-    # requestからuserを取得する
-    # pkからvoteを取得する
-    # voteのcountにuserを追加する
-    # choicesのvoteduserにuserを追加する
-    # dataで受け取るのは choiceのid
-    #choiceidを受け取り　filterをかけてvoteduserにUserを追加する
-    print("------------------------")
-    print(request.data["choice"])
-    print(request.user)
-    print("------------------------")
-    # vote = Vote.objects.get(pk=pk)
-    # print("投票数",vote.numberOfVotes)
-    # user = User.objects.get(pk=request.user)
-    # print("ユーザー",user)
+    #pkからvoteを取得する
+    vote_id = pk
+    vote_data = Vote.objects.get(id=vote_id) 
+ 
+    #voteのnumberOfVotesにuserを追加する
+    user = self.request.user
+    vote_data.numberOfVotes.add(user)
+    vote_data.save()
 
-    # vote.numberOfVotes.add(user)
-    # serializer = QuestionDetailPageSerializer(vote, data=request.data)
-    # if serializer.is_valid():
-    #         serializer.save()
-    #         return Response(serializer.data)
-
-    return Response({"message":"Putしました"}, status=status.HTTP_400_BAD_REQUEST)
-    
+    choiceID = request.data 
+    choice_data = Choice.objects.get(id=choiceID)
+    # ユーザーでなくプロフィールである理由は
+    # 誰がこの選択肢に対して投稿したか質問者は確認できる様にするため。
+    user_profile = Profile.objects.get(user=user)
+    choice_data.votedUserCount.add(user_profile)
+    choice_data.save()
+    return Response({"message":"PUTしました"})
   
 
   def delete(self, request, pk):
