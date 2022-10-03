@@ -85,7 +85,7 @@ class Choice(models.Model):
 
 class Thread(models.Model):
   user = models.ForeignKey(Profile, on_delete=models.CASCADE)
-  vote = models.ManyToManyField(Vote, blank=True )
+  vote = models.ForeignKey(Vote, blank=True, on_delete=models.CASCADE )
   title = models.CharField(max_length=100)
   createdAt = models.DateTimeField(auto_now_add=True) 
   def __str__(self) -> str:

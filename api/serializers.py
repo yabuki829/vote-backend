@@ -29,7 +29,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
  
 class ChoiceSerializer(serializers.ModelSerializer):
-  votedUserCount = ProfileSerializer(read_only=True,many=True)
+  votedUserCount = UserSerializer(read_only=True,many=True)
   id = serializers.UUIDField(read_only=True)
   text = serializers.CharField(max_length=200)
 
@@ -70,12 +70,23 @@ class QuestionResultPageSerializer(VoteSerializer):
 
 #TODO スレッド　コメントのシリアライザーを作成する
 
-#     class ThreadSerializer(serializers.ModelSerializer):
-#   createdAt = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)
-#   class Meta:
-#     model = Thread
-#     fields = ["id","user","vote","title","createdAt"]
-#     # extra_kwargs = {'user': {'read_only': True}}
+class VoteThreadSerializer(serializers.ModelSerializer):
+  user = UserSerializer(read_only=True)
+  class Meta:
+    model = Vote
+    fields = ["id","user","questionText","createdAt","image","isOnlyLoginUser"]
+    extra_kwargs = {'user': {'read_only': True}}
+
+
+
+class ThreadSerializer(serializers.ModelSerializer):
+  createdAt = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)
+  vote = VoteThreadSerializer()
+  user = UserSerializer(read_only=True)
+  class Meta:
+    model = Thread
+    fields = ["id","user","vote","title","createdAt"]
+    extra_kwargs = {'user': {'read_only': True}}
 
 # class ThreadCommentSerializer(serializers.ModelSerializer):
 #   createdAt = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)

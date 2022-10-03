@@ -4,7 +4,7 @@ import uuid
 from rest_framework import generics
 from rest_framework import viewsets,views,status
 from rest_framework.permissions import AllowAny,IsAuthenticated
-from .serializers import ProfileSerializer, QuestionDetailPageSerializer,UserSerializer,QuestionResultPageSerializer
+from .serializers import ProfileSerializer, QuestionDetailPageSerializer, ThreadSerializer,UserSerializer,QuestionResultPageSerializer
 from .models import User,Vote,VoteComment,Thread,ThreadComment,Choice,Profile
 from rest_framework.response import Response 
 
@@ -31,7 +31,7 @@ class ProfileViewSets(viewsets.ModelViewSet):
   
 
 class VoteAPIView(views.APIView):
-  
+  permission_classes = [AllowAny,]
   def get(self,request):
     #TODO クエリをつけたい
 
@@ -71,13 +71,14 @@ class VoteAPIView(views.APIView):
  
 
 class VoteDetailAPIView(views.APIView):
-    
+  permission_classes = [AllowAny,]
   def get(self,request,pk):
    
 
     vote = Vote.objects.filter(pk=pk)
     serializer = QuestionDetailPageSerializer(vote, many=True)
     return Response(serializer.data,status=status.HTTP_201_CREATED)
+
     pass
   def put(self, request, pk):
    
@@ -104,3 +105,19 @@ class VoteDetailAPIView(views.APIView):
     vote = self.get_object(pk)
     vote.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+class ThreadAPIView(views.APIView):
+  permission_classes = [AllowAny,]
+  
+  def get(self,request):
+    thread = Thread.objects.all()
+    serializer = ThreadSerializer(thread,many=True)
+    return Response(serializer.data,status=status.HTTP_201_CREATED)
+
+  def post(self,request): 
+    pass
+
+  def delete(self, request, pk):
+    pass
