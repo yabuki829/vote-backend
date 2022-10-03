@@ -30,7 +30,7 @@ class UserManager(BaseUserManager):
     return user
 
 class User(AbstractBaseUser,PermissionsMixin):
-  # id = models.UUIDField(primary_key=True,default=uuid.uuid4, editable=False)
+  id = models.UUIDField(primary_key=True,default=uuid.uuid4, editable=False)
   email = models.EmailField(max_length=100,unique=True)
   is_active =  models.BooleanField(default=True)
   is_staff = models.BooleanField(default=False)
@@ -51,7 +51,7 @@ def upload_post_path(instance, filename):
     return '/'.join(['images/posts', str(instance.userPost.id)+str(uuid.uuid4)+str(".")+str(ext)])
 
 class Profile(models.Model):
-  # id = models.UUIDField(primary_key=True,default=uuid.uuid4, editable=False)
+  id = models.UUIDField(primary_key=True,default=uuid.uuid4, editable=False)
   nickName = models.CharField(max_length=20,default="No Name")
   user = models.OneToOneField(settings.AUTH_USER_MODEL,related_name="user",on_delete=models.CASCADE)
   createdAt = models.DateTimeField(auto_now_add=True) 
@@ -75,7 +75,7 @@ class Choice(models.Model):
     id = models.UUIDField(primary_key=True,default=uuid.uuid4, editable=False)
     text = models.CharField(max_length=200)
     #誰がこの選択肢に投票したのか
-    votedUserCount = models.ManyToManyField(Profile, blank=True)
+    votedUserCount = models.ManyToManyField(User, blank=True)
     vote = models.ForeignKey(Vote,blank=True,on_delete=models.CASCADE,related_name="choices") 
     def __str__(self) -> str:
        return self.text

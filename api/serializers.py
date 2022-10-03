@@ -46,11 +46,11 @@ class VoteSerializer(serializers.ModelSerializer):
   createdAt = serializers.DateTimeField(format="%Y-%m-%d")
   user = ProfileSerializer(read_only=True)
   choices = ChoiceSerializer()
-  
+  numberOfVotes = UserSerializer(read_only=True,many=True)
   class Meta:
     model = Vote
     fields = ["id","user","questionText","createdAt","image","isOnlyLoginUser","choices","numberOfVotes"]
-
+    extra_kwargs = {'user': {'read_only': True}}
   
 
   def create(self, validated_data):

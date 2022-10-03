@@ -90,12 +90,12 @@ class VoteDetailAPIView(views.APIView):
     vote_data.numberOfVotes.add(user)
     vote_data.save()
 
+
     choiceID = request.data 
     choice_data = Choice.objects.get(id=choiceID)
     # ユーザーでなくプロフィールである理由は
     # 誰がこの選択肢に対して投稿したか質問者は確認できる様にするため。
-    user_profile = Profile.objects.get(user=user)
-    choice_data.votedUserCount.add(user_profile)
+    choice_data.votedUserCount.add(user)
     choice_data.save()
     return Response({"message":"PUTしました"})
   
