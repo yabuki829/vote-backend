@@ -71,7 +71,7 @@ class QuestionResultPageSerializer(VoteSerializer):
 #TODO スレッド　コメントのシリアライザーを作成する
 
 class VoteThreadSerializer(serializers.ModelSerializer):
-  user = UserSerializer(read_only=True)
+  user = ProfileSerializer(read_only=True)
   class Meta:
     model = Vote
     fields = ["id","user","questionText","createdAt","image","isOnlyLoginUser"]
@@ -82,7 +82,7 @@ class VoteThreadSerializer(serializers.ModelSerializer):
 class ThreadSerializer(serializers.ModelSerializer):
   createdAt = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)
   vote = VoteThreadSerializer()
-  user = UserSerializer(read_only=True)
+  user = ProfileSerializer(read_only=True)
   class Meta:
     model = Thread
     fields = ["id","user","vote","title","createdAt"]
