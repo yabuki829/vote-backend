@@ -24,8 +24,22 @@ class ProfileViewSets(viewsets.ModelViewSet):
   def perform_create(self, serializer):
     if Profile.objects.filter(user=self.request.user).exists() == False:
       serializer.save(user=self.request.user)
-    
 
+    
+class ProfileAPIView(views.APIView):
+  # permission_classes = [AllowAny,]
+
+  #一覧ではなく自分のprofileを取得する
+  def get(self,request):
+    print(self.request.user)
+    # profile = Profile.objects.all()
+    profile = Profile.objects.filter(user=self.request.user)
+    serializer = ProfileSerializer(profile, many=True)
+    return Response(serializer.data,status=status.HTTP_201_CREATED)
+  def post():
+    pass
+  def fetch():
+    pass
 
   
 

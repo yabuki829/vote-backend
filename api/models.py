@@ -44,11 +44,11 @@ class User(AbstractBaseUser,PermissionsMixin):
 def upload_profile_image_path(instance, filename):
     #jpg png などの拡張子の部分を取得する
     ext = filename.split('.')[-1]
-    return '/'.join(['images/profiles',str(instance.user.id)+str(uuid.uuid4)+str(".")+str(ext)])
+    return '/'.join(['images/profiles',str(uuid.uuid4())+str(".")+str(ext)])
 
 def upload_post_path(instance, filename):
     ext = filename.split('.')[-1]
-    return '/'.join(['images/posts', str(instance.userPost.id)+str(uuid.uuid4)+str(".")+str(ext)])
+    return '/'.join(['images/posts', str(uuid.uuid4())+str(".")+str(ext)])
 
 class Profile(models.Model):
   id = models.UUIDField(primary_key=True,default=uuid.uuid4, editable=False)
