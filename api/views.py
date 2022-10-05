@@ -23,7 +23,6 @@ class ProfileViewSets(viewsets.ModelViewSet):
 
   def perform_create(self, serializer):
     if Profile.objects.filter(user=self.request.user).exists() == False:
-      print("作成しました")
       serializer.save(user=self.request.user)
     
 
