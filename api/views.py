@@ -1,10 +1,11 @@
 
 from datetime import datetime
 import uuid
+from requests import request
 from rest_framework import generics
 from rest_framework import viewsets,views,status
 from rest_framework.permissions import AllowAny,IsAuthenticated
-from .serializers import ProfileSerializer, QuestionDetailPageSerializer, ThreadSerializer,UserSerializer,QuestionResultPageSerializer
+from .serializers import ProfileSerializer, QuestionDetailPageSerializer, ThreadCommentSerializer, ThreadSerializer,UserSerializer,QuestionResultPageSerializer, VoteCommentSerializer
 from .models import User,Vote,VoteComment,Thread,ThreadComment,Choice,Profile
 from rest_framework.response import Response 
 
@@ -62,7 +63,6 @@ class VoteAPIView(views.APIView):
     print("------------------------------")
     print("2回目",request_data)
     if serializer.is_valid():
-      print("validted")
       profile = Profile.objects.get(user=self.request.user) 
       vote_id = str(uuid.uuid4())
 
@@ -133,4 +133,71 @@ class ThreadAPIView(views.APIView):
     pass
 
   def delete(self, request, pk):
+    pass
+
+
+
+#Voteに対するコメント
+class CommentVoteAPIView(views.APIView):
+  permission_classes = [AllowAny,]
+
+  def get(self,request,pk):
+    print(pk,"のvoteのコメントを取得する")
+    comment = VoteComment.objects.filter(vote=pk)
+    serializer = VoteCommentSerializer(comment,many=True)
+    return Response(serializer.data,status=status.HTTP_201_CREATED)
+    
+
+  def post(self,requset,pk):
+    print(pk,"のvoteにコメントを追加する")
+    request_data = self.request.data 
+    now = datetime.now()
+    date = '{:%Y-%m-%d}'.format(now) 
+
+    vote_instance =  Vote.objects.get(pk=pk)
+    profile_instance = Profile.objects.get(user=self.request.user)
+    request_data.update(
+        {
+          "id":uuid.uuid4(),
+          "createdAt": date,
+          "vote":vote_instance,
+          "user":profile_instance,
+        }
+      )
+    data = VoteComment.objects.create(**request_data)
+    serializer = VoteCommentSerializer(data=data)
+    
+    if serializer.is_valid():
+      print("------------")
+      print(serializer.data)
+      serializer.save(user=self.request.user,vote=vote_instance)
+      return Response(serializer.data,status=status.HTTP_201_CREATED)
+    else:
+      print("-----------")
+      print("エラーです")
+      return Response("エラー",status=status.HTTP_201_CREATED)
+
+
+  def delete(self,requset,pk):
+    pass
+
+
+#スレッドに対するコメント
+class CommentThreadPIView(views.APIView):
+  permission_classes = [AllowAny,]
+
+
+  #pk取得する
+  def get(self,request,pk):
+    print("----------------------")
+    print(pk,"ここです")
+    comment = ThreadComment.objects.filter(vote=pk)
+    serializer = ThreadCommentSerializer(comment,many=True)
+    return Response(serializer.data,status=status.HTTP_201_CREATED)
+   
+
+  def post(self,requset):
+    pass
+
+  def delete(self,requset,pk):
     pass

@@ -84,6 +84,7 @@ class Choice(models.Model):
   
 
 class Thread(models.Model):
+  # id = models.UUIDField(primary_key=True,default=uuid.uuid4, editable=False)
   user = models.ForeignKey(Profile, on_delete=models.CASCADE)
   vote = models.ForeignKey(Vote, blank=True, on_delete=models.CASCADE )
   title = models.CharField(max_length=100)
@@ -93,6 +94,7 @@ class Thread(models.Model):
 
 
 class ThreadComment(models.Model):
+  id = models.UUIDField(primary_key=True,default=uuid.uuid4, editable=False)
   user = models.ForeignKey(Profile, on_delete=models.CASCADE)
   thread = models.ForeignKey(Thread, on_delete=models.CASCADE)
   text = models.CharField(max_length=100)
@@ -105,6 +107,7 @@ class ThreadComment(models.Model):
 
 
 class VoteComment(models.Model):
+  id = models.UUIDField(primary_key=True,default=uuid.uuid4, editable=False)
   user = models.ForeignKey(Profile, on_delete=models.CASCADE)
   vote = models.ForeignKey(Vote, on_delete=models.CASCADE)
   text = models.CharField(max_length=100)

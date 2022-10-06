@@ -88,17 +88,19 @@ class ThreadSerializer(serializers.ModelSerializer):
     fields = ["id","user","vote","title","createdAt"]
     extra_kwargs = {'user': {'read_only': True}}
 
-# class ThreadCommentSerializer(serializers.ModelSerializer):
-#   createdAt = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)
-#   class Meta:
-#     model = ThreadComment
-#     fields = ["id","user","thread","text","createdAt"]
-#     # extra_kwargs = {'user': {'read_only': True}}
+class ThreadCommentSerializer(serializers.ModelSerializer):
+  createdAt = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)
+  class Meta:
+    model = ThreadComment
+    fields = ["id","user","thread","text","createdAt"]
+    # extra_kwargs = {'user': {'read_only': True}}
 
 
-# class VoteCommentCommentSerializer(serializers.ModelSerializer):
-#   createdAt = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)
-#   class Meta:
-#     model = VoteComment
-#     fields = ["id","user","vote","text","createdAt"]
+class VoteCommentSerializer(serializers.ModelSerializer):
+  createdAt = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)
+  user = ProfileSerializer()
+  
+  class Meta:
+    model = VoteComment
+    fields = ["id","user","vote","text","createdAt"]
     
