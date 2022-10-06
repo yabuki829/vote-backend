@@ -6,6 +6,32 @@ from django.contrib.auth.models import AbstractBaseUser,BaseUserManager,Permissi
 from django.conf import settings
 import uuid
 
+from json import JSONEncoder
+from uuid import UUID
+
+from django.forms import ImageField
+from django.db.models.fields.files import ImageFieldFile
+JSONEncoder_olddefault = JSONEncoder.default
+
+def JSONEncoder_newdefault(self, obj):
+    print(obj)
+
+    print("タイプ",type(obj))
+    if isinstance(obj, UUID): 
+      print("タイプA")
+      print("------------------")
+      return str(obj)
+    if isinstance(obj,ImageFieldFile):
+      print("タイプB")
+      print("------------------")
+      print(obj)
+      return str(obj)
+    print("タイプC")
+    print("------------------")
+    return JSONEncoder_olddefault(self, obj)
+
+
+JSONEncoder.default = JSONEncoder_newdefault
 
 class UserManager(BaseUserManager):
   def create_user(self,email,password=None):
@@ -40,6 +66,8 @@ class User(AbstractBaseUser,PermissionsMixin):
 
   def __str__(self):
       return self.email
+  def user_id(self):
+    return self.id.__str__()
   
 def upload_profile_image_path(instance, filename):
     #jpg png などの拡張子の部分を取得する

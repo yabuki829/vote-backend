@@ -1,11 +1,12 @@
 
 from datetime import datetime
+from secrets import choice
 import uuid
 from requests import request
 from rest_framework import generics
 from rest_framework import viewsets,views,status
 from rest_framework.permissions import AllowAny,IsAuthenticated
-from .serializers import ProfileSerializer, QuestionDetailPageSerializer, ThreadCommentSerializer, ThreadSerializer,UserSerializer,QuestionResultPageSerializer, VoteCommentSerializer
+from .serializers import ProfileSerializer, QuestionDetailPageSerializer, ThreadCommentSerializer, ThreadSerializer,UserSerializer,QuestionResultPageSerializer, VoteCommentSerializer, VoteSerializer
 from .models import User,Vote,VoteComment,Thread,ThreadComment,Choice,Profile
 from rest_framework.response import Response 
 
@@ -49,7 +50,7 @@ class VoteAPIView(views.APIView):
   def get(self,request):
     #TODO クエリをつけたい
 
-    vote = Vote.objects.all()
+    vote = Vote.objects.order_by('-createdAt')
     serializer = QuestionDetailPageSerializer(vote, many=True)
     return Response(serializer.data,status=status.HTTP_201_CREATED)
   
@@ -137,18 +138,21 @@ class ThreadAPIView(views.APIView):
 
 
 
+import json
+from django.forms.models import model_to_dict
+
 #Voteに対するコメント
 class CommentVoteAPIView(views.APIView):
   permission_classes = [AllowAny,]
 
   def get(self,request,pk):
     print(pk,"のvoteのコメントを取得する")
-    comment = VoteComment.objects.filter(vote=pk)
+    comment = VoteComment.objects.order_by('-createdAt').filter(vote=pk)
     serializer = VoteCommentSerializer(comment,many=True)
     return Response(serializer.data,status=status.HTTP_201_CREATED)
-    
+  
 
-  def post(self,requset,pk):
+  def post(self,request,pk):
     print(pk,"のvoteにコメントを追加する")
     request_data = self.request.data 
     now = datetime.now()
@@ -156,30 +160,29 @@ class CommentVoteAPIView(views.APIView):
 
     vote_instance =  Vote.objects.get(pk=pk)
     profile_instance = Profile.objects.get(user=self.request.user)
+    id = uuid.uuid4() 
     request_data.update(
         {
-          "id":uuid.uuid4(),
+          "id":id,
           "createdAt": date,
           "vote":vote_instance,
           "user":profile_instance,
         }
       )
     data = VoteComment.objects.create(**request_data)
-    serializer = VoteCommentSerializer(data=data)
     
-    if serializer.is_valid():
-      print("------------")
-      print(serializer.data)
-      serializer.save(user=self.request.user,vote=vote_instance)
-      return Response(serializer.data,status=status.HTTP_201_CREATED)
-    else:
-      print("-----------")
-      print("エラーです")
-      return Response("エラー",status=status.HTTP_201_CREATED)
+    comment = VoteComment.objects.order_by('-createdAt').filter(vote=pk)
+    serializer = VoteCommentSerializer(comment,many=True)
+    return Response(serializer.data,status=status.HTTP_201_CREATED)
+    
+   
 
 
   def delete(self,requset,pk):
     pass
+
+
+
 
 
 #スレッドに対するコメント
