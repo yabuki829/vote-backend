@@ -72,9 +72,11 @@ class QuestionResultPageSerializer(VoteSerializer):
 
 class VoteThreadSerializer(serializers.ModelSerializer):
   user = ProfileSerializer(read_only=True)
+  choices = ChoiceSerializer(read_only=True,many=True)
+  numberOfVotes = UserSerializer(read_only=True,many=True)
   class Meta:
     model = Vote
-    fields = ["id","user","questionText","createdAt","image","isOnlyLoginUser"]
+    fields = ["id","user","questionText","createdAt","image","isOnlyLoginUser","choices","numberOfVotes"]
     extra_kwargs = {'user': {'read_only': True}}
 
 
