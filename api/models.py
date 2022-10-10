@@ -85,7 +85,7 @@ class Choice(models.Model):
   
 
 class Thread(models.Model):
-  # id = models.UUIDField(primary_key=True,default=uuid.uuid4, editable=False)
+  id = models.UUIDField(primary_key=True,default=uuid.uuid4, editable=False)
   user = models.ForeignKey(Profile, on_delete=models.CASCADE)
   vote = models.ForeignKey(Vote, blank=True, on_delete=models.CASCADE )
   title = models.CharField(max_length=100)

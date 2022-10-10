@@ -1,4 +1,5 @@
 
+from concurrent.futures import thread
 from datetime import datetime
 from secrets import choice
 import uuid
@@ -29,7 +30,7 @@ class ProfileViewSets(viewsets.ModelViewSet):
 
     
 class ProfileAPIView(views.APIView):
-  # permission_classes = [AllowAny,]
+  permission_classes = [AllowAny,]
 
   #一覧ではなく自分のprofileを取得する
   def get(self,request):
@@ -38,8 +39,12 @@ class ProfileAPIView(views.APIView):
     profile = Profile.objects.filter(user=self.request.user)
     serializer = ProfileSerializer(profile, many=True)
     return Response(serializer.data,status=status.HTTP_201_CREATED)
-  def post():
-    pass
+  def post(self,request):
+    Profile.objects.create(user=self.request.user)
+    profile = Profile.objects.filter(user=self.request.user)
+    serializer = ProfileSerializer(profile, many=True)
+    return Response(serializer.data,status=status.HTTP_201_CREATED)
+
   def fetch():
     pass
 
@@ -131,7 +136,18 @@ class ThreadAPIView(views.APIView):
     return Response(serializer.data,status=status.HTTP_201_CREATED)
 
   def post(self,request): 
-    pass
+    print("000000000000000000000000000000")
+    print("スレッドを作成します")
+    print(self.request.data["vote_id"])
+    print(self.request.data["thread_title"])
+    user = Profile.objects.get(user=self.request.user)
+    print(user)
+    vote = Vote.objects.get(pk=self.request.data["vote_id"])
+    Thread.objects.create(user=user,vote=vote,title=self.request.data["thread_title"])
+
+    thread = Thread.objects.all()
+    serializer = ThreadSerializer(thread,many=True)
+    return Response(serializer.data,status=status.HTTP_201_CREATED)
 
   def delete(self, request, pk):
     pass
@@ -175,13 +191,20 @@ class CommentVoteAPIView(views.APIView):
     serializer = VoteCommentSerializer(comment,many=True)
     return Response(serializer.data,status=status.HTTP_201_CREATED)
     
-   
-
-
   def delete(self,requset,pk):
     pass
 
+class ThreadVoteAPIView(views.APIView):
+    permission_classes = [AllowAny,]
+    def get(self,request,pk):
+      thread = Thread.objects.order_by('-createdAt').filter(vote=pk)
+      serializer = ThreadSerializer(thread,many=True)
+      return Response(serializer.data,status=status.HTTP_201_CREATED)
+    def post(self,request):
 
+      pass
+    def delete():
+      pass
 
 
 
@@ -194,13 +217,19 @@ class CommentThreadPIView(views.APIView):
   def get(self,request,pk):
     print("----------------------")
     print(pk,"ここです")
-    comment = ThreadComment.objects.filter(vote=pk)
+    comment = ThreadComment.objects.filter(thread=pk)
+    
+    print(comment,"取得できてる")
     serializer = ThreadCommentSerializer(comment,many=True)
     return Response(serializer.data,status=status.HTTP_201_CREATED)
    
 
-  def post(self,requset):
+  def post(self,requset,pk):
+    thread = Thread.objects.get(pk=pk)
+    user = Profile.objects.get(user=self.request.user)
+    ThreadComment.objects.create(thread=thread,text=self.request.data,user=user)
+    print("コメントを作成します")
     pass
-
+  
   def delete(self,requset,pk):
     pass

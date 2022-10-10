@@ -92,10 +92,10 @@ class ThreadSerializer(serializers.ModelSerializer):
 
 class ThreadCommentSerializer(serializers.ModelSerializer):
   createdAt = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)
+  user = ProfileSerializer()
   class Meta:
     model = ThreadComment
-    fields = ["id","user","thread","text","createdAt"]
-    # extra_kwargs = {'user': {'read_only': True}}
+    fields = ["id","user","text","createdAt"]
 
 
 class VoteCommentSerializer(serializers.ModelSerializer):
@@ -104,4 +104,3 @@ class VoteCommentSerializer(serializers.ModelSerializer):
   class Meta:
     model = VoteComment
     fields = "__all__"
-    
