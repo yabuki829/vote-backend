@@ -39,6 +39,7 @@ class ProfileAPIView(views.APIView):
     profile = Profile.objects.filter(user=self.request.user)
     serializer = ProfileSerializer(profile, many=True)
     return Response(serializer.data,status=status.HTTP_201_CREATED)
+
   def post(self,request):
     Profile.objects.create(user=self.request.user)
     profile = Profile.objects.filter(user=self.request.user)
@@ -227,9 +228,16 @@ class CommentThreadPIView(views.APIView):
   def post(self,requset,pk):
     thread = Thread.objects.get(pk=pk)
     user = Profile.objects.get(user=self.request.user)
-    ThreadComment.objects.create(thread=thread,text=self.request.data,user=user)
+    print("------------------------------")
     print("コメントを作成します")
-    pass
+    print(self.request.data["text"])
+    print("------------------------------")
+    ThreadComment.objects.create(thread=thread,text=self.request.data["text"],user=user)
+    
+    comment = ThreadComment.objects.filter(thread=pk)
+    print(comment,"取得できてる")
+    serializer = ThreadCommentSerializer(comment,many=True)
+    return Response(serializer.data,status=status.HTTP_201_CREATED)
   
   def delete(self,requset,pk):
     pass

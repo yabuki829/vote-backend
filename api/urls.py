@@ -18,8 +18,9 @@ urlpatterns = [
 
   
   path("thread/",ThreadAPIView.as_view(),name="thread"),
-  path("thread/<int:pk>/comment",CommentThreadPIView.as_view(),name="commentThread"),
+  path("thread/<str:pk>/comment",CommentThreadPIView.as_view(),name="commentThread"),
   path("thread/<str:pk>/",VoteDetailAPIView.as_view(),name="voteDetail"),
   
   path("profile/",ProfileAPIView.as_view(),name="profile"),
+
 ]
