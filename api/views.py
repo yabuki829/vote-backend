@@ -1,9 +1,6 @@
 
-from concurrent.futures import thread
 from datetime import datetime
-from secrets import choice
 import uuid
-from requests import request
 from rest_framework import generics
 from rest_framework import viewsets,views,status
 from rest_framework.permissions import AllowAny,IsAuthenticated
@@ -46,19 +43,53 @@ class ProfileAPIView(views.APIView):
     serializer = ProfileSerializer(profile, many=True)
     return Response(serializer.data,status=status.HTTP_201_CREATED)
 
-  def fetch():
+  def put(self,request):
     pass
-
   
+
+class OtherProfileAPIView(views.APIView):
+  permission_classes = [AllowAny,]
+
+  def get(self,request,pk):
+    user = User.objects.get(pk=pk)
+    profile = Profile.objects.get(user=user)
+    serializer = ProfileSerializer(profile, many=True)
+    return Response(serializer.data,status=status.HTTP_201_CREATED)
+
+
 
 class VoteAPIView(views.APIView):
   permission_classes = [AllowAny,]
   def get(self,request):
     #TODO クエリをつけたい
+    if "type" in request.GET:
+      query = request.GET.get("type")
+      if query == "me":
+        user = Profile.objects.get(user=self.request.user)
+        vote = Vote.objects.filter(user=user)
+        serializer = QuestionDetailPageSerializer(vote, many=True)
+        return Response(serializer.data,status=status.HTTP_201_CREATED)
+      elif query == "voted":
+        vote = Vote.objects.filter(numberOfVotes=self.request.user)
+        serializer = QuestionDetailPageSerializer(vote, many=True)
+        return Response(serializer.data,status=status.HTTP_201_CREATED)     
+      else:
+        pass
+    
+    elif "title" in request.GET:
+      query = request.GET.get("title")
+      pass
 
-    vote = Vote.objects.order_by('-createdAt')
-    serializer = QuestionDetailPageSerializer(vote, many=True)
-    return Response(serializer.data,status=status.HTTP_201_CREATED)
+    else:
+      vote = Vote.objects.order_by('-createdAt')
+      serializer = QuestionDetailPageSerializer(vote, many=True)
+      return Response(serializer.data,status=status.HTTP_201_CREATED)
+    
+
+
+
+    
+    
   
   def post(self,request): 
     request_data = request.data
@@ -67,8 +98,7 @@ class VoteAPIView(views.APIView):
     date = '{:%Y-%m-%d}'.format(now) 
     request_data.update({"createdAt": date})
     serializer = QuestionDetailPageSerializer(data=request_data)
-    print("------------------------------")
-    print("2回目",request_data)
+
     if serializer.is_valid():
       profile = Profile.objects.get(user=self.request.user) 
       vote_id = str(uuid.uuid4())
@@ -155,9 +185,6 @@ class ThreadAPIView(views.APIView):
 
 
 
-import json
-from django.forms.models import model_to_dict
-
 #Voteに対するコメント
 class CommentVoteAPIView(views.APIView):
   permission_classes = [AllowAny,]
@@ -228,14 +255,9 @@ class CommentThreadPIView(views.APIView):
   def post(self,requset,pk):
     thread = Thread.objects.get(pk=pk)
     user = Profile.objects.get(user=self.request.user)
-    print("------------------------------")
-    print("コメントを作成します")
-    print(self.request.data["text"])
-    print("------------------------------")
     ThreadComment.objects.create(thread=thread,text=self.request.data["text"],user=user)
     
     comment = ThreadComment.objects.filter(thread=pk)
-    print(comment,"取得できてる")
     serializer = ThreadCommentSerializer(comment,many=True)
     return Response(serializer.data,status=status.HTTP_201_CREATED)
   

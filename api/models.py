@@ -68,7 +68,7 @@ class Vote(models.Model):
     image = models.ImageField(blank=True, null=True, upload_to=upload_profile_image_path)
     #ログインしているアカウントのみ投票できる
     isOnlyLoginUser = models.BooleanField(default=False)
-    numberOfVotes = models.ManyToManyField(User, blank=True)
+    numberOfVotes = models.ManyToManyField(User, blank=True,related_name="numberOfVotes")
     def __str__(self) -> str:
        return self.questionText
 
