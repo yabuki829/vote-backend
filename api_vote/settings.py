@@ -87,6 +87,7 @@ REST_FRAMEWORK = {
         #https://www.django-rest-framework.org/api-guide/permissions/#setting-the-permission-policy 
         'rest_framework.permissions.IsAuthenticated',
         
+        
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 30,

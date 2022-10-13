@@ -1,4 +1,5 @@
 
+from concurrent.futures import thread
 from datetime import datetime
 import uuid
 from rest_framework import generics
@@ -123,8 +124,6 @@ class VoteAPIView(views.APIView):
 class VoteDetailAPIView(views.APIView):
   permission_classes = [AllowAny,]
   def get(self,request,pk):
-   
-
     vote = Vote.objects.filter(pk=pk)
     serializer = QuestionDetailPageSerializer(vote, many=True)
     return Response(serializer.data,status=status.HTTP_201_CREATED)
@@ -157,6 +156,17 @@ class VoteDetailAPIView(views.APIView):
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+#スレッドの詳細を取得する
+class ThreadDetail(views.APIView):
+  permission_classes = [AllowAny,]
+  def get(self,request,pk):
+    print("取得します")
+    print(pk)
+    thread = Thread.objects.filter(pk=pk)
+    print(thread)
+    serializer = ThreadSerializer(thread, many=True)
+    return Response(serializer.data,status=status.HTTP_201_CREATED)
+
 
 class ThreadAPIView(views.APIView):
   permission_classes = [AllowAny,]
@@ -167,7 +177,6 @@ class ThreadAPIView(views.APIView):
     return Response(serializer.data,status=status.HTTP_201_CREATED)
 
   def post(self,request): 
-    print("000000000000000000000000000000")
     print("スレッドを作成します")
     print(self.request.data["vote_id"])
     print(self.request.data["thread_title"])
@@ -222,17 +231,14 @@ class CommentVoteAPIView(views.APIView):
   def delete(self,requset,pk):
     pass
 
+
+# 投稿のidから投稿に対するスレッドを取得する
 class ThreadVoteAPIView(views.APIView):
     permission_classes = [AllowAny,]
     def get(self,request,pk):
       thread = Thread.objects.order_by('-createdAt').filter(vote=pk)
       serializer = ThreadSerializer(thread,many=True)
       return Response(serializer.data,status=status.HTTP_201_CREATED)
-    def post(self,request):
-
-      pass
-    def delete():
-      pass
 
 
 
