@@ -45,7 +45,25 @@ class ProfileAPIView(views.APIView):
     return Response(serializer.data,status=status.HTTP_201_CREATED)
 
   def put(self,request):
-    pass
+    print("profileを変更します")
+    user_profile = Profile.objects.get(user=self.request.user)
+
+    if "type" in request.GET:
+      print("画像以外を変更します")
+      query = request.GET.get("type")
+      if query == "none":
+        user_profile.nickName = self.request.data["nickName"]
+        user_profile.save()
+      
+    else:
+      print("画像も変更します")
+      user_profile.nickName = self.request.data["nickName"]
+      user_profile.image = self.request.data["profileImage"]
+      user_profile.save()
+
+    profile = Profile.objects.filter(user=self.request.user)
+    serializer = ProfileSerializer(profile, many=True)
+    return Response(serializer.data,status=status.HTTP_201_CREATED)
   
 
 class OtherProfileAPIView(views.APIView):

@@ -20,7 +20,6 @@ class UserSerializer(serializers.ModelSerializer):
     return user 
 
 class ProfileSerializer(serializers.ModelSerializer):
-  createdAt = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)
   user = UserSerializer(read_only=True)
   class Meta:
     model = Profile
@@ -43,7 +42,7 @@ class ChoiceSerializer(serializers.ModelSerializer):
       return Choice.objects.create(**validated_data)
 
 class VoteSerializer(serializers.ModelSerializer):
-  createdAt = serializers.DateTimeField(format="%Y-%m-%d")
+  createdAt = serializers.DateTimeField(format="%Y年%m月%d日", read_only=True)
   user = ProfileSerializer(read_only=True)
   choices = ChoiceSerializer()
   numberOfVotes = UserSerializer(read_only=True,many=True)
@@ -71,6 +70,7 @@ class QuestionResultPageSerializer(VoteSerializer):
 #TODO スレッド　コメントのシリアライザーを作成する
 
 class VoteThreadSerializer(serializers.ModelSerializer):
+  createdAt = serializers.DateTimeField(format="%Y年%m月%d日", read_only=True)
   user = ProfileSerializer(read_only=True)
   choices = ChoiceSerializer(read_only=True,many=True)
   numberOfVotes = UserSerializer(read_only=True,many=True)
@@ -82,7 +82,7 @@ class VoteThreadSerializer(serializers.ModelSerializer):
 
 
 class ThreadSerializer(serializers.ModelSerializer):
-  createdAt = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)
+  createdAt = serializers.DateTimeField(format="%Y年%m月%d日", read_only=True)
   vote = VoteThreadSerializer()
   user = ProfileSerializer(read_only=True)
   class Meta:
@@ -91,7 +91,7 @@ class ThreadSerializer(serializers.ModelSerializer):
     extra_kwargs = {'user': {'read_only': True}}
 
 class ThreadCommentSerializer(serializers.ModelSerializer):
-  createdAt = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)
+  createdAt = serializers.DateTimeField(format="%Y年%m月%d日", read_only=True)
   user = ProfileSerializer()
   class Meta:
     model = ThreadComment
@@ -99,7 +99,7 @@ class ThreadCommentSerializer(serializers.ModelSerializer):
 
 
 class VoteCommentSerializer(serializers.ModelSerializer):
-  createdAt = serializers.DateTimeField(format="%Y-%m-%d", read_only=True)
+  createdAt = serializers.DateTimeField(format="%Y年%m月%d日", read_only=True)
   user = ProfileSerializer()
   class Meta:
     model = VoteComment
