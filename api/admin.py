@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext as _
-from .models import User,Profile,Thread,ThreadComment,Vote,VoteComment,Choice
+from .models import Tag, User,Profile,Thread,ThreadComment,Vote,VoteComment,Choice
 # Register your models here.
 class UserAdmin(BaseUserAdmin):
     ordering = ['id']
@@ -32,7 +32,7 @@ admin.site.register(User, UserAdmin)
 admin.site.register(Profile)
 admin.site.register(Thread)
 admin.site.register(ThreadComment)
-
+admin.site.register(Tag)
 
 class ChoiceInline(admin.StackedInline):
     model = Choice

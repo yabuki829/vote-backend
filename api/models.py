@@ -1,5 +1,6 @@
 
 from concurrent.futures import thread
+from pyexpat import model
 from secrets import choice
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser,BaseUserManager,PermissionsMixin
@@ -60,6 +61,13 @@ class Profile(models.Model):
   def __str__(self):
       return self.nickName
 
+
+class Tag(models.Model):
+  id = models.UUIDField(primary_key=True,default=uuid.uuid4, editable=False)
+  title = models.CharField(max_length=20)
+  def __str__(self):
+      return self.title
+
 class Vote(models.Model):
     id = models.UUIDField(primary_key=True,default=uuid.uuid4, editable=False)
     user = models.ForeignKey(Profile, on_delete=models.CASCADE)
@@ -69,8 +77,13 @@ class Vote(models.Model):
     #ログインしているアカウントのみ投票できる
     isOnlyLoginUser = models.BooleanField(default=False)
     numberOfVotes = models.ManyToManyField(User, blank=True,related_name="numberOfVotes")
+    tag = models.ForeignKey(Tag,on_delete=models.CASCADE,blank=True)
+
     def __str__(self) -> str:
        return self.questionText
+
+
+
 
 class Choice(models.Model):
     id = models.UUIDField(primary_key=True,default=uuid.uuid4, editable=False)

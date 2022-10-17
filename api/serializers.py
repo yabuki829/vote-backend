@@ -2,7 +2,7 @@ from urllib.request import Request
 from django.http import HttpResponse
 from rest_framework.decorators import action
 from rest_framework import serializers
-from .models import User,Vote,VoteComment,Thread,ThreadComment,Choice,Profile
+from .models import Tag, User,Vote,VoteComment,Thread,ThreadComment,Choice,Profile
 from django.contrib.auth import get_user_model
 
 
@@ -41,14 +41,22 @@ class ChoiceSerializer(serializers.ModelSerializer):
       print("Choiceを作成します")
       return Choice.objects.create(**validated_data)
 
+
+
+class TagSerializer(serializers.ModelSerializer):
+   class Meta:
+    model = Tag
+    fields = "__all__"
+
 class VoteSerializer(serializers.ModelSerializer):
   createdAt = serializers.DateTimeField(format="%Y年%m月%d日", read_only=True)
   user = ProfileSerializer(read_only=True)
   choices = ChoiceSerializer()
   numberOfVotes = UserSerializer(read_only=True,many=True)
+  tag = TagSerializer(many=True)
   class Meta:
     model = Vote
-    fields = ["id","user","questionText","createdAt","image","isOnlyLoginUser","choices","numberOfVotes"]
+    fields = ["id","user","questionText","createdAt","image","isOnlyLoginUser","choices","numberOfVotes","tag"]
     extra_kwargs = {'user': {'read_only': True}}
   
 
@@ -60,6 +68,7 @@ class ChoiceSerializerWithVotes(ChoiceSerializer):
 
 class QuestionDetailPageSerializer(VoteSerializer):
   choices = ChoiceSerializer(many=True, read_only=True)
+  tag = TagSerializer(many=True)
   
 class QuestionResultPageSerializer(VoteSerializer):
   choices = ChoiceSerializerWithVotes(many=True, read_only=True)
@@ -104,3 +113,5 @@ class VoteCommentSerializer(serializers.ModelSerializer):
   class Meta:
     model = VoteComment
     fields = "__all__"
+
+

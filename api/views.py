@@ -1,14 +1,16 @@
 
-from concurrent.futures import thread
+
 from datetime import datetime
+import json
 import uuid
+from django.forms import model_to_dict
 from rest_framework import generics
 from rest_framework import viewsets,views,status
 from rest_framework.permissions import AllowAny,IsAuthenticated
 from .serializers import ProfileSerializer, QuestionDetailPageSerializer, ThreadCommentSerializer, ThreadSerializer,UserSerializer,QuestionResultPageSerializer, VoteCommentSerializer, VoteSerializer
-from .models import User,Vote,VoteComment,Thread,ThreadComment,Choice,Profile
+from .models import Tag, User,Vote,VoteComment,Thread,ThreadComment,Choice,Profile
 from rest_framework.response import Response 
-
+from django.core import serializers
 
 class CreateUserView(generics.CreateAPIView):
   serializer_class = UserSerializer
@@ -104,16 +106,22 @@ class VoteAPIView(views.APIView):
       serializer = QuestionDetailPageSerializer(vote, many=True)
       return Response(serializer.data,status=status.HTTP_201_CREATED)
     
-
-
-
-    
-    
   
   def post(self,request): 
     request_data = request.data
     print("1回目",request_data)
     now = datetime.now()
+
+    #tagを検索
+    #tagがなければ作成する
+    tag = Tag.objects.filter(title=request_data["tag"])
+    if len(tag) == 0:
+      print("新規タグを作成します")
+    else:
+      print("既存のタグを使う")
+
+    
+        
     date = '{:%Y-%m-%d}'.format(now) 
     request_data.update({"createdAt": date})
     serializer = QuestionDetailPageSerializer(data=request_data)
@@ -126,10 +134,13 @@ class VoteAPIView(views.APIView):
       
       vote_instance = Vote.objects.get(id=vote_id) 
       choices = request_data["choices"]
+
+
       for choice in choices:
         choice_data = {"text":choice["text"],"vote":vote_instance}
         print(choice_data)
         Choice.objects.create(**choice_data)
+     
         
       return Response(serializer.data, status=status.HTTP_201_CREATED)
     else:
