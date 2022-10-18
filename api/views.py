@@ -1,9 +1,7 @@
 
 
 from datetime import datetime
-import json
 import uuid
-from django.forms import model_to_dict
 from rest_framework import generics
 from rest_framework import viewsets,views,status
 from rest_framework.permissions import AllowAny,IsAuthenticated
@@ -106,47 +104,34 @@ class VoteAPIView(views.APIView):
       serializer = QuestionDetailPageSerializer(vote, many=True)
       return Response(serializer.data,status=status.HTTP_201_CREATED)
     
-  
   def post(self,request): 
-    request_data = request.data
-    print("1回目",request_data)
-    now = datetime.now()
+    user = Profile.objects.get(user=self.request.user)
+    vote_id = str(uuid.uuid4())
+    tag = Tag.objects.filter(title=request.data["tag"])
 
-    #tagを検索
-    #tagがなければ作成する
-    tag = Tag.objects.filter(title=request_data["tag"])
     if len(tag) == 0:
-      print("新規タグを作成します")
+      print("新しいタグです")
+      tag = Tag.objects.create(title=request.data["tag"])
+      print(tag)
     else:
-      print("既存のタグを使う")
+      print("作成済みのタグです")
+      tag = tag.first()
 
     
-        
-    date = '{:%Y-%m-%d}'.format(now) 
-    request_data.update({"createdAt": date})
-    serializer = QuestionDetailPageSerializer(data=request_data)
+    Vote.objects.create(id=vote_id,user=user,questionText=request.data["questionText"],tag=tag)
 
-    if serializer.is_valid():
-      profile = Profile.objects.get(user=self.request.user) 
-      vote_id = str(uuid.uuid4())
-
-      serializer.save(user=profile,id=vote_id,)
-      
-      vote_instance = Vote.objects.get(id=vote_id) 
-      choices = request_data["choices"]
-
-
-      for choice in choices:
-        choice_data = {"text":choice["text"],"vote":vote_instance}
-        print(choice_data)
-        Choice.objects.create(**choice_data)
-     
-        
-      return Response(serializer.data, status=status.HTTP_201_CREATED)
-    else:
-      print("エラー")
-      print(serializer.errors)
-    return Response({"message":"エラー"})
+    #Voteを作った後に選択肢を作成する
+    vote_instance = Vote.objects.get(id=vote_id) 
+    choices = request.data["choices"]
+    for choice in choices:
+      choice_data = {"text":choice["text"],"vote":vote_instance}
+      print(choice_data)
+      Choice.objects.create(**choice_data)
+    
+    vote = Vote.objects.filter(pk=vote_id)
+    serializer = QuestionDetailPageSerializer(vote, many=True)
+    return Response(serializer.data,status=status.HTTP_201_CREATED)
+    
   
  
 
@@ -206,16 +191,13 @@ class ThreadAPIView(views.APIView):
     return Response(serializer.data,status=status.HTTP_201_CREATED)
 
   def post(self,request): 
-    print("スレッドを作成します")
-    print(self.request.data["vote_id"])
-    print(self.request.data["thread_title"])
     user = Profile.objects.get(user=self.request.user)
-    print(user)
     vote = Vote.objects.get(pk=self.request.data["vote_id"])
     Thread.objects.create(user=user,vote=vote,title=self.request.data["thread_title"])
 
     thread = Thread.objects.all()
     serializer = ThreadSerializer(thread,many=True)
+
     return Response(serializer.data,status=status.HTTP_201_CREATED)
 
   def delete(self, request, pk):

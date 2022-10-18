@@ -46,14 +46,14 @@ class ChoiceSerializer(serializers.ModelSerializer):
 class TagSerializer(serializers.ModelSerializer):
    class Meta:
     model = Tag
-    fields = "__all__"
+    fields = ["title"]
 
 class VoteSerializer(serializers.ModelSerializer):
   createdAt = serializers.DateTimeField(format="%Y年%m月%d日", read_only=True)
   user = ProfileSerializer(read_only=True)
   choices = ChoiceSerializer()
   numberOfVotes = UserSerializer(read_only=True,many=True)
-  tag = TagSerializer(many=True)
+  tag = TagSerializer()
   class Meta:
     model = Vote
     fields = ["id","user","questionText","createdAt","image","isOnlyLoginUser","choices","numberOfVotes","tag"]
@@ -68,7 +68,6 @@ class ChoiceSerializerWithVotes(ChoiceSerializer):
 
 class QuestionDetailPageSerializer(VoteSerializer):
   choices = ChoiceSerializer(many=True, read_only=True)
-  tag = TagSerializer(many=True)
   
 class QuestionResultPageSerializer(VoteSerializer):
   choices = ChoiceSerializerWithVotes(many=True, read_only=True)
@@ -83,9 +82,10 @@ class VoteThreadSerializer(serializers.ModelSerializer):
   user = ProfileSerializer(read_only=True)
   choices = ChoiceSerializer(read_only=True,many=True)
   numberOfVotes = UserSerializer(read_only=True,many=True)
+  tag = TagSerializer()
   class Meta:
     model = Vote
-    fields = ["id","user","questionText","createdAt","image","isOnlyLoginUser","choices","numberOfVotes"]
+    fields = ["id","user","questionText","createdAt","image","isOnlyLoginUser","choices","numberOfVotes","tag"]
     extra_kwargs = {'user': {'read_only': True}}
 
 
