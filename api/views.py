@@ -81,8 +81,10 @@ class VoteAPIView(views.APIView):
   permission_classes = [AllowAny,]
   def get(self,request):
     #TODO クエリをつけたい
+    print("投稿取得する",request.GET)
     if "type" in request.GET:
       query = request.GET.get("type")
+      print("type")
       if query == "me":
         user = Profile.objects.get(user=self.request.user)
         vote = Vote.objects.filter(user=user)
@@ -95,9 +97,12 @@ class VoteAPIView(views.APIView):
       else:
         pass
     
-    elif "title" in request.GET:
-      query = request.GET.get("title")
-      pass
+    elif "tag" in request.GET:
+      query = request.GET.get("tag")
+      tag = Tag.objects.get(title=query)
+      vote = Vote.objects.filter(tag=tag)
+      serializer = QuestionDetailPageSerializer(vote, many=True)
+      return Response(serializer.data,status=status.HTTP_201_CREATED)
 
     else:
       vote = Vote.objects.order_by('-createdAt')
