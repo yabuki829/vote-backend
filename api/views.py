@@ -75,7 +75,7 @@ class OtherProfileAPIView(views.APIView):
     serializer = ProfileSerializer(profile, many=True)
     return Response(serializer.data,status=status.HTTP_201_CREATED)
 
-
+from django.db.models import Q
 
 class VoteAPIView(views.APIView):
   permission_classes = [AllowAny,]
@@ -87,11 +87,11 @@ class VoteAPIView(views.APIView):
       print("type")
       if query == "me":
         user = Profile.objects.get(user=self.request.user)
-        vote = Vote.objects.filter(user=user)
+        vote = Vote.objects.filter(user=user).order_by('-createdAt')
         serializer = QuestionDetailPageSerializer(vote, many=True)
         return Response(serializer.data,status=status.HTTP_201_CREATED)
       elif query == "voted":
-        vote = Vote.objects.filter(numberOfVotes=self.request.user)
+        vote = Vote.objects.filter(numberOfVotes=self.request.user).order_by('-createdAt')
         serializer = QuestionDetailPageSerializer(vote, many=True)
         return Response(serializer.data,status=status.HTTP_201_CREATED)     
       else:
@@ -101,6 +101,12 @@ class VoteAPIView(views.APIView):
       query = request.GET.get("tag")
       tag = Tag.objects.get(title=query)
       vote = Vote.objects.filter(tag=tag)
+      serializer = QuestionDetailPageSerializer(vote, many=True)
+      return Response(serializer.data,status=status.HTTP_201_CREATED)
+    elif "q" in request.GET:
+      query = request.GET.get("q")
+      tag = Tag.objects.get(title=query)
+      vote = Vote.objects.filter(Q(questionText__contains =query) | Q(tag=tag))
       serializer = QuestionDetailPageSerializer(vote, many=True)
       return Response(serializer.data,status=status.HTTP_201_CREATED)
 
