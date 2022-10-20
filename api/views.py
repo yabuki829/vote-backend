@@ -93,7 +93,12 @@ class VoteAPIView(views.APIView):
       elif query == "voted":
         vote = Vote.objects.filter(numberOfVotes=self.request.user).order_by('-createdAt')
         serializer = QuestionDetailPageSerializer(vote, many=True)
-        return Response(serializer.data,status=status.HTTP_201_CREATED)     
+        return Response(serializer.data,status=status.HTTP_201_CREATED)   
+      elif query == "unvoted":
+        vote = Vote.objects.filter(~Q(numberOfVotes=self.request.user)).order_by('-createdAt')
+        serializer = QuestionDetailPageSerializer(vote, many=True)
+        return Response(serializer.data,status=status.HTTP_201_CREATED) 
+  
       else:
         pass
     
