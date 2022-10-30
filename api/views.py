@@ -81,7 +81,6 @@ class VoteAPIView(views.APIView):
   permission_classes = [AllowAny,]
   def get(self,request):
     #TODO クエリをつけたい
-    print("投稿取得する",request.GET)
     if "type" in request.GET:
       query = request.GET.get("type")
       print("type")
@@ -103,14 +102,16 @@ class VoteAPIView(views.APIView):
         pass
     
     elif "tag" in request.GET:
+      print("タグで検索")
       query = request.GET.get("tag")
       tag = Tag.objects.get(title=query)
       vote = Vote.objects.filter(tag=tag)
       serializer = QuestionDetailPageSerializer(vote, many=True)
       return Response(serializer.data,status=status.HTTP_201_CREATED)
     elif "q" in request.GET:
+      print("qで検索")
       query = request.GET.get("q")
-      tag = Tag.objects.get(title=query)
+      tag = Tag.objects.filter(title=query).first()
       vote = Vote.objects.filter(Q(questionText__contains =query) | Q(tag=tag))
       serializer = QuestionDetailPageSerializer(vote, many=True)
       return Response(serializer.data,status=status.HTTP_201_CREATED)
@@ -181,7 +182,8 @@ class VoteDetailAPIView(views.APIView):
   
 
   def delete(self, request, pk):
-    vote = self.get_object(pk)
+    print("削除します。")
+    vote = Vote.objects.get(id=pk) 
     vote.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -216,8 +218,8 @@ class ThreadAPIView(views.APIView):
 
     return Response(serializer.data,status=status.HTTP_201_CREATED)
 
-  def delete(self, request, pk):
-    pass
+    
+
 
 
 
