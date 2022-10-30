@@ -1,6 +1,6 @@
 
 from django.urls import path,include
-from .views import  CommentThreadPIView, CommentVoteAPIView, CreateUserView, ProfileAPIView, ProfileViewSets, ThreadAPIView, ThreadDetail, ThreadVoteAPIView,VoteAPIView,VoteDetailAPIView
+from .views import  CommentThreadPIView, CommentVoteAPIView, CreateUserView, ProfileAPIView, ProfileDetailAPIView, ProfileViewSets, ThreadAPIView, ThreadDetail, ThreadVoteAPIView,VoteAPIView,VoteDetailAPIView
 from rest_framework.routers import DefaultRouter
 app_name = 'user'
 
@@ -22,5 +22,7 @@ urlpatterns = [
   path("thread/<str:pk>/",ThreadDetail.as_view(),name="voteDetail"),
   
   path("profile/",ProfileAPIView.as_view(),name="profile"),
+  path("profile/<str:pk>",ProfileDetailAPIView.as_view(),name="profile"),
+  
 
 ]

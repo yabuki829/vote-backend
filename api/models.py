@@ -57,6 +57,7 @@ class Profile(models.Model):
   nickName = models.CharField(max_length=20,default="No Name")
   user = models.OneToOneField(settings.AUTH_USER_MODEL,related_name="user",on_delete=models.CASCADE)
   createdAt = models.DateTimeField(auto_now_add=True) 
+  bio = models.CharField(max_length=120,default="はじめまして")
   image = models.ImageField(blank=True, null=True, upload_to=upload_profile_image_path)
   def __str__(self):
       return self.nickName

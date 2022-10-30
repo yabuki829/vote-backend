@@ -2,6 +2,7 @@
 
 from datetime import datetime
 import uuid
+from webbrowser import get
 from rest_framework import generics
 from rest_framework import viewsets,views,status
 from rest_framework.permissions import AllowAny,IsAuthenticated
@@ -25,6 +26,27 @@ class ProfileViewSets(viewsets.ModelViewSet):
   def perform_create(self, serializer):
     if Profile.objects.filter(user=self.request.user).exists() == False:
       serializer.save(user=self.request.user)
+
+
+class ProfileDetailAPIView(views.APIView):
+  permission_classes = [AllowAny,]
+
+  def get(self,request,pk):
+    print("--------------------------")
+    print("ここです",pk)
+
+    if "type" in request.GET:
+     
+      query = request.GET.get("type")
+      if query == "vote":
+        user = Profile.objects.get(user=pk)
+        vote = Vote.objects.filter(user=user).order_by('-createdAt')
+        serializer = QuestionDetailPageSerializer(vote,many=True)
+        return Response(serializer.data,status=status.HTTP_201_CREATED)
+    else: 
+      profile = Profile.objects.filter(user=pk)
+      serializer = ProfileSerializer(profile, many=True)
+      return Response(serializer.data,status=status.HTTP_201_CREATED)
 
     
 class ProfileAPIView(views.APIView):
@@ -99,7 +121,12 @@ class VoteAPIView(views.APIView):
         return Response(serializer.data,status=status.HTTP_201_CREATED) 
   
       else:
-        pass
+        # 
+        user_id = request.data["user_id"]
+        print(user_id)
+        vote = Vote.objects.filter(user=user_id)
+        serializer = QuestionDetailPageSerializer(vote, many=True)
+        return Response(serializer.data,status=status.HTTP_201_CREATED) 
     
     elif "tag" in request.GET:
       print("タグで検索")
@@ -120,7 +147,8 @@ class VoteAPIView(views.APIView):
       vote = Vote.objects.order_by('-createdAt')
       serializer = QuestionDetailPageSerializer(vote, many=True)
       return Response(serializer.data,status=status.HTTP_201_CREATED)
-    
+
+ 
   def post(self,request): 
     user = Profile.objects.get(user=self.request.user)
     vote_id = str(uuid.uuid4())
