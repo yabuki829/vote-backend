@@ -28,17 +28,16 @@ class ProfileViewSets(viewsets.ModelViewSet):
       serializer.save(user=self.request.user)
 
 
+
+
+#Profileの詳細　
 class ProfileDetailAPIView(views.APIView):
-  permission_classes = [AllowAny,]
-
   def get(self,request,pk):
-    print("--------------------------")
-    print("ここです",pk)
-
     if "type" in request.GET:
      
       query = request.GET.get("type")
       if query == "vote":
+        # 投稿を取得する
         user = Profile.objects.get(user=pk)
         vote = Vote.objects.filter(user=user).order_by('-createdAt')
         serializer = QuestionDetailPageSerializer(vote,many=True)
@@ -48,24 +47,28 @@ class ProfileDetailAPIView(views.APIView):
       serializer = ProfileSerializer(profile, many=True)
       return Response(serializer.data,status=status.HTTP_201_CREATED)
 
-    
+
+
+
+
+
+# 自分のプロフィール
 class ProfileAPIView(views.APIView):
-  permission_classes = [AllowAny,]
 
   #一覧ではなく自分のprofileを取得する
   def get(self,request):
-    print(self.request.user)
-    # profile = Profile.objects.all()
     profile = Profile.objects.filter(user=self.request.user)
     serializer = ProfileSerializer(profile, many=True)
     return Response(serializer.data,status=status.HTTP_201_CREATED)
 
   def post(self,request):
+
     Profile.objects.create(user=self.request.user)
     profile = Profile.objects.filter(user=self.request.user)
     serializer = ProfileSerializer(profile, many=True)
     return Response(serializer.data,status=status.HTTP_201_CREATED)
 
+  # Profileの変更の際に使う
   def put(self,request):
     print("profileを変更します")
     user_profile = Profile.objects.get(user=self.request.user)
@@ -75,12 +78,14 @@ class ProfileAPIView(views.APIView):
       query = request.GET.get("type")
       if query == "none":
         user_profile.nickName = self.request.data["nickName"]
+        user_profile.bio = self.request.data["bio"]
         user_profile.save()
       
     else:
       print("画像も変更します")
       user_profile.nickName = self.request.data["nickName"]
       user_profile.image = self.request.data["profileImage"]
+      user_profile.bio = self.request.data["bio"]
       user_profile.save()
 
     profile = Profile.objects.filter(user=self.request.user)
@@ -88,17 +93,20 @@ class ProfileAPIView(views.APIView):
     return Response(serializer.data,status=status.HTTP_201_CREATED)
   
 
-class OtherProfileAPIView(views.APIView):
-  permission_classes = [AllowAny,]
 
+
+
+ #自分以外のユーザーのプロフィール
+class OtherProfileAPIView(views.APIView):
   def get(self,request,pk):
     user = User.objects.get(pk=pk)
     profile = Profile.objects.get(user=user)
     serializer = ProfileSerializer(profile, many=True)
     return Response(serializer.data,status=status.HTTP_201_CREATED)
 
-from django.db.models import Q
 
+
+from django.db.models import Q
 class VoteAPIView(views.APIView):
   permission_classes = [AllowAny,]
   def get(self,request):
@@ -187,7 +195,6 @@ class VoteDetailAPIView(views.APIView):
     serializer = QuestionDetailPageSerializer(vote, many=True)
     return Response(serializer.data,status=status.HTTP_201_CREATED)
 
-    pass
   def put(self, request, pk):
    
     #pkからvoteを取得する
@@ -216,9 +223,12 @@ class VoteDetailAPIView(views.APIView):
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+
+
+
+
 #スレッドの詳細を取得する
 class ThreadDetail(views.APIView):
-  permission_classes = [AllowAny,]
   def get(self,request,pk):
     print("取得します")
     print(pk)
@@ -229,7 +239,6 @@ class ThreadDetail(views.APIView):
 
 
 class ThreadAPIView(views.APIView):
-  permission_classes = [AllowAny,]
   
   def get(self,request):
     thread = Thread.objects.all()
@@ -253,7 +262,6 @@ class ThreadAPIView(views.APIView):
 
 #Voteに対するコメント
 class CommentVoteAPIView(views.APIView):
-  permission_classes = [AllowAny,]
 
   def get(self,request,pk):
     print(pk,"のvoteのコメントを取得する")
@@ -289,13 +297,17 @@ class CommentVoteAPIView(views.APIView):
     pass
 
 
+
+
+
 # 投稿のidから投稿に対するスレッドを取得する
 class ThreadVoteAPIView(views.APIView):
-    permission_classes = [AllowAny,]
     def get(self,request,pk):
       thread = Thread.objects.order_by('-createdAt').filter(vote=pk)
       serializer = ThreadSerializer(thread,many=True)
       return Response(serializer.data,status=status.HTTP_201_CREATED)
+
+
 
 
 

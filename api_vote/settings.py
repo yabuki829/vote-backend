@@ -11,11 +11,21 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from datetime import timedelta
-import os
+
 from pathlib import Path
+import os
+import environ
+from decouple import config 
+from dj_database_url import parse as dburl
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+#render設定
+
+env = environ.Env()
+env.read_env(os.path.join(BASE_DIR,".env"))
 
 
 # Quick-start development settings - unsuitable for production
@@ -27,7 +37,7 @@ SECRET_KEY = 'django-insecure-qmxa+g7bilv*4tpkez0au$d$(i6ro(6cvk4j_hdwv=l(-l@u4g
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -105,11 +115,10 @@ SIMPLE_JWT = {
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+default_dburl = "sqlite:///" + str(BASE_DIR / "db.sqlite3")
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    "default": config("DATABASE_URL", default=default_dburl, cast=dburl),
 }
 
 
@@ -151,6 +160,14 @@ USE_TZ = True
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
+
+STATIC_URL = "static/"
+STATIC_ROOT = str(BASE_DIR / "staticfiles")
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+SUPERUSER_NAME = env("SUPERUSER_NAME")
+SUPERUSER_EMAIL = env("SUPERUSER_EMAIL")
+SUPERUSER_PASSWORD = env("SUPERUSER_PASSWORD")
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
